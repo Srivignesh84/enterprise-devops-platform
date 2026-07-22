@@ -1,0 +1,5 @@
+resource_group_name  = "rg-tfstate-dev-001"
+storage_account_name = "sttfstateob001"
+container_name       = "bootstrap-tfstate"
+key                  = "bootstrap.tfstate"
+
