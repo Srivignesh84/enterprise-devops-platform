@@ -71,7 +71,7 @@ acr_sku  = "Basic"
 
 cluster_name       = "aks-ob-dev-001"
 dns_prefix         = "aks-ob-dev"
-kubernetes_version = "1.36.2"
+kubernetes_version = "1.36.1"
 node_count         = 1
 vm_size            = "Standard_D2ls_v5"
 
