@@ -54,7 +54,7 @@ module "aks" {
   source = "../../modules/aks"
 
   resource_group_name = module.resource_group.resource_group_name
-  location            = module.resource_group.location
+  location            = "IndiaSouthCentral"
 
   cluster_name       = var.cluster_name
   dns_prefix         = var.dns_prefix
