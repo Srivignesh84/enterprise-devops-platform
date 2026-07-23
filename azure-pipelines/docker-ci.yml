@@ -8,33 +8,90 @@ resources:
 
 variables:
   dockerRegistryServiceConnection: 'sc-acr-ob-dev'
-  imageRepository: 'online-boutique/frontend'
-  dockerfilePath: 'application/online-boutique/src/frontend/Dockerfile'
-  buildContext: 'application/online-boutique/src/frontend'
-  tag: '$(Build.BuildId)'
+  imageTag: '$(Build.BuildId)'
 
 pool:
   vmImage: 'ubuntu-latest'
 
 stages:
 - stage: Build
-  displayName: Build and Push
+  displayName: 'Build and Push Docker Images'
 
   jobs:
-  - job: DockerBuild
+  - job: BuildImages
+    displayName: 'Build Microservices'
+
+    strategy:
+      matrix:
+
+        frontend:
+          serviceName: 'frontend'
+          dockerfile: 'application/online-boutique/src/frontend/Dockerfile'
+          buildContext: 'application/online-boutique/src/frontend'
+
+        adservice:
+          serviceName: 'adservice'
+          dockerfile: 'application/online-boutique/src/adservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/adservice'
+
+        cartservice:
+          serviceName: 'cartservice'
+          dockerfile: 'application/online-boutique/src/cartservice/src/Dockerfile'
+          buildContext: 'application/online-boutique/src/cartservice/src'
+
+        checkoutservice:
+          serviceName: 'checkoutservice'
+          dockerfile: 'application/online-boutique/src/checkoutservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/checkoutservice'
+
+        currencyservice:
+          serviceName: 'currencyservice'
+          dockerfile: 'application/online-boutique/src/currencyservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/currencyservice'
+
+        emailservice:
+          serviceName: 'emailservice'
+          dockerfile: 'application/online-boutique/src/emailservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/emailservice'
+
+        paymentservice:
+          serviceName: 'paymentservice'
+          dockerfile: 'application/online-boutique/src/paymentservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/paymentservice'
+
+        productcatalogservice:
+          serviceName: 'productcatalogservice'
+          dockerfile: 'application/online-boutique/src/productcatalogservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/productcatalogservice'
+
+        recommendationservice:
+          serviceName: 'recommendationservice'
+          dockerfile: 'application/online-boutique/src/recommendationservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/recommendationservice'
+
+        shippingservice:
+          serviceName: 'shippingservice'
+          dockerfile: 'application/online-boutique/src/shippingservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/shippingservice'
+
+        shoppingassistantservice:
+          serviceName: 'shoppingassistantservice'
+          dockerfile: 'application/online-boutique/src/shoppingassistantservice/Dockerfile'
+          buildContext: 'application/online-boutique/src/shoppingassistantservice'
 
     steps:
+
     - checkout: self
 
     - task: Docker@2
-      displayName: Build and Push Frontend
+      displayName: 'Build and Push $(serviceName)'
 
       inputs:
-        command: buildAndPush
-        containerRegistry: $(dockerRegistryServiceConnection)
-        repository: $(imageRepository)
-        Dockerfile: $(dockerfilePath)
-        buildContext: $(buildContext)
+        command: 'buildAndPush'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: 'online-boutique/$(serviceName)'
+        Dockerfile: '$(dockerfile)'
+        buildContext: '$(buildContext)'
         tags: |
-          $(tag)
+          $(imageTag)
           latest
