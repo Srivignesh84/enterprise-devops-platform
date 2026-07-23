@@ -73,7 +73,7 @@ cluster_name       = "aks-ob-dev-001"
 dns_prefix         = "aks-ob-dev"
 kubernetes_version = "1.36.2"
 node_count         = 1
-vm_size            = "Standard_DS2_v2"
+vm_size            = "Standard_DC2as_v6"
 
 # ==========================
 # Common Tags
