@@ -10,7 +10,7 @@ variables:
   dockerRegistryServiceConnection: 'sc-acr-ob-dev'
   imageRepository: 'online-boutique/frontend'
   dockerfilePath: 'application/online-boutique/src/frontend/Dockerfile'
-  buildContext: 'application/online-boutique/src'
+  buildContext: 'application/online-boutique/src/frontend'
   tag: '$(Build.BuildId)'
 
 pool:
