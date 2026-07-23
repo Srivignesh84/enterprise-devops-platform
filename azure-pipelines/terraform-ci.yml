@@ -1,0 +1,69 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraformVersion: '1.15.8'
+  workingDirectory: 'terraform/environments/dev'
+  azureServiceConnection: 'sc-azure-ob-dev'
+
+stages:
+
+- stage: TerraformValidation
+  displayName: "Terraform Validation"
+
+  jobs:
+
+  - job: Validate
+    displayName: "Terraform Validate"
+
+    steps:
+
+    - checkout: self
+
+    - task: TerraformInstaller@1
+      displayName: "Install Terraform"
+
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+    - task: AzureCLI@2
+      displayName: "Terraform Init, Validate and Plan"
+
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+
+        scriptType: bash
+
+        scriptLocation: inlineScript
+
+        workingDirectory: $(workingDirectory)
+
+        inlineScript: |
+
+          echo "========== Terraform Version =========="
+          terraform version
+
+          echo "========== Terraform Init =========="
+          terraform init \
+            -backend-config=dev.tfbackend
+
+          echo "========== Terraform Format =========="
+          terraform fmt -check -recursive
+
+          echo "========== Terraform Validate =========="
+          terraform validate
+
+          echo "========== Terraform Plan =========="
+          terraform plan \
+            -out=tfplan

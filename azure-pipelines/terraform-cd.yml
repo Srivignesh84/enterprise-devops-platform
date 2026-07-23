@@ -1,0 +1,56 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraformVersion: '1.15.8'
+  workingDirectory: 'terraform/environments/dev'
+  azureServiceConnection: 'sc-azure-ob-dev'
+
+stages:
+
+- stage: DeployInfrastructure
+  displayName: "Deploy Infrastructure"
+
+  jobs:
+
+  - deployment: TerraformApply
+    displayName: "Terraform Apply"
+
+    environment: "dev"
+
+    strategy:
+      runOnce:
+
+        deploy:
+
+          steps:
+
+          - checkout: self
+
+          - task: TerraformInstaller@1
+            displayName: "Install Terraform"
+
+            inputs:
+              terraformVersion: $(terraformVersion)
+
+          - task: AzureCLI@2
+            displayName: "Terraform Apply"
+
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              workingDirectory: $(workingDirectory)
+
+              inlineScript: |
+
+                terraform version
+
+                terraform init \
+                  -backend-config=dev.tfbackend
+
+                terraform apply \
+                  -var-file=terraform.tfvars \
+                  -auto-approve

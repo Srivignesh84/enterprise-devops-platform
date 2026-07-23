@@ -45,7 +45,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   role_based_access_control_enabled = true
 
-  local_account_disabled = true
+  #local_account_disabled = true
 
   image_cleaner_enabled        = true
   image_cleaner_interval_hours = 48
