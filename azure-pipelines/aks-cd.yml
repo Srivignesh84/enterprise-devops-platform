@@ -1,0 +1,124 @@
+trigger: none
+
+resources:
+  pipelines:
+    - pipeline: dockerCI
+      source: 'Docker CI Pipeline'         # Azure DevOps pipeline name
+      trigger: true
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  azureServiceConnection: 'sc-azure-ob-dev'
+
+  resourceGroup: 'rg-ob-dev-001'
+  aksCluster: 'aks-ob-dev-001'
+
+  acrRegistry: 'acrobdev001.azurecr.io'
+  imageRepository: 'online-boutique'
+
+stages:
+
+- stage: Deploy
+  displayName: Deploy Online Boutique to AKS
+
+  jobs:
+
+  - job: Deploy
+    displayName: Deploy
+
+    steps:
+
+    - checkout: self
+
+    ####################################################
+    # Install kubectl
+    ####################################################
+
+    - task: KubectlInstaller@0
+      displayName: Install kubectl
+
+    ####################################################
+    # Install Kustomize
+    ####################################################
+
+    - bash: |
+        set -e
+
+        KUSTOMIZE_VERSION="5.4.2"
+
+        curl -Lo kustomize.tar.gz \
+        https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
+
+        tar -xzf kustomize.tar.gz
+
+        chmod +x kustomize
+
+        sudo mv kustomize /usr/local/bin/
+
+        kustomize version
+      displayName: Install Kustomize
+
+    ####################################################
+    # Deploy
+    ####################################################
+
+    - task: AzureCLI@2
+      displayName: Deploy to AKS
+
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+
+        inlineScript: |
+
+          set -e
+
+          echo "Connecting to AKS..."
+
+          az aks get-credentials \
+            --resource-group $(resourceGroup) \
+            --name $(aksCluster) \
+            --overwrite-existing
+
+          kubectl get nodes
+
+          echo "Preparing Kustomize..."
+
+          cp -R application/online-boutique/kustomize ./kustomize-temp
+
+          sed -i "s|CONTAINER_IMAGES_REGISTRY|$(acrRegistry)/$(imageRepository)|g" \
+            kustomize-temp/components/container-images-registry/kustomization.yaml
+
+          sed -i "s|CONTAINER_IMAGES_TAG|$(resources.pipeline.dockerCI.runName)|g" \
+            kustomize-temp/components/container-images-tag/kustomization.yaml
+
+          echo "Generating manifests..."
+
+          kustomize build kustomize-temp/overlays/aks > manifests.yaml
+
+          echo "Deploying..."
+
+          kubectl apply -f manifests.yaml
+
+          echo "Waiting for rollout..."
+
+          kubectl rollout status deployment/frontend --timeout=10m
+
+          echo "Pods"
+
+          kubectl get pods -o wide
+
+          echo "Services"
+
+          kubectl get svc
+
+          echo "Deployments"
+
+          kubectl get deployments
+
+          echo "Ingress"
+
+          kubectl get ingress || true
