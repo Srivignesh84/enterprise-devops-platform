@@ -11,6 +11,7 @@ pool:
 
 variables:
   azureServiceConnection: 'sc-azure-ob-dev'
+  imageTag: '58'
 
   resourceGroup: 'rg-ob-dev-001'
   aksCluster: 'aks-ob-dev-001'
@@ -94,10 +95,13 @@ stages:
 
           sed -i "s|CONTAINER_IMAGES_REGISTRY|$(acrRegistry)/$(imageRepository)|g" \
             kustomize-temp/components/container-images-registry/kustomization.yaml
-
-          sed -i "s|CONTAINER_IMAGES_TAG|$(resources.pipeline.dockerCI.runName)|g" \
+            
+          sed -i "s|CONTAINER_IMAGES_TAG|\"$(imageTag)\"|g" \
             kustomize-temp/components/container-images-tag/kustomization.yaml
-
+          #############################################################################
+          # sed -i "s|CONTAINER_IMAGES_TAG|$(resources.pipeline.dockerCI.runName)|g" \
+          #  kustomize-temp/components/container-images-tag/kustomization.yaml
+          #############################################################################
           echo "Generating manifests..."
 
           kustomize build kustomize-temp/overlays/aks > manifests.yaml
