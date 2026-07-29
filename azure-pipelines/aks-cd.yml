@@ -89,6 +89,9 @@ stages:
 
           cp -R application/online-boutique/kustomize ./kustomize-temp
 
+          echo "Docker CI Run Name: $(resources.pipeline.dockerCI.runName)"
+          echo "Current Build ID: $(Build.BuildId)"
+
           sed -i "s|CONTAINER_IMAGES_REGISTRY|$(acrRegistry)/$(imageRepository)|g" \
             kustomize-temp/components/container-images-registry/kustomization.yaml
 
