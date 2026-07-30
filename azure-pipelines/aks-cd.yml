@@ -11,7 +11,7 @@ pool:
 
 variables:
   azureServiceConnection: 'sc-azure-ob-dev'
-  imageTag: '58'
+  imageTag: '65'
 
   resourceGroup: 'rg-ob-dev-001'
   aksCluster: 'aks-ob-dev-001'
@@ -112,7 +112,7 @@ stages:
 
           echo "Waiting for rollout..."
 
-          kubectl rollout status deployment/frontend --timeout=10m
+          kubectl rollout status deployment/frontend --timeout=20m
 
           echo "Pods"
 
