@@ -24,7 +24,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
     vnet_subnet_id = var.aks_subnet_id
 
-    only_critical_addons_enabled = true
+    only_critical_addons_enabled = false
   }
 
   identity {
