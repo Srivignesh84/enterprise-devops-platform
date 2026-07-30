@@ -112,7 +112,7 @@ stages:
 
           echo "Waiting for rollout..."
 
-          kubectl rollout status deployment/frontend --timeout=10m
+          kubectl rollout status deployment/frontend --timeout=20m
 
           echo "Pods"
 
