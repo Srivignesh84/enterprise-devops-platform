@@ -11,7 +11,7 @@ pool:
 
 variables:
   azureServiceConnection: 'sc-azure-ob-dev'
-  imageTag: '58'
+  imageTag: '65'
 
   resourceGroup: 'rg-ob-dev-001'
   aksCluster: 'aks-ob-dev-001'
